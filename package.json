@@ -1,0 +1,29 @@
+{
+  "name": "decorator-utils",
+  "version": "1.0.0",
+  "exports": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepublishOnly": "rm -fr dist && tsc"
+  },
+  "author": {
+    "name": "YeFei",
+    "email": "316606233@qq.com"
+  },
+  "keywords": [
+    "reflect-metadata",
+    "utils",
+    "decorator",
+    "typescript"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.5"
+  }
+}
