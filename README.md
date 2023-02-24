@@ -54,7 +54,7 @@ deco.getMethods(Target);
 ## Class Decorator
 
 ```js
-const deco = makeClassDecorator(someValue);
+const deco = makeClassDecorator();
 ```
 
 ### TypeScript with experimentalDecorators & emitDecoratorMetadata
@@ -70,5 +70,5 @@ deco(Target);
 
 ### Get Value
 ```js
-deco.getValue(Target); // return someValue
+deco.getValue(Target); // return true
 ```
