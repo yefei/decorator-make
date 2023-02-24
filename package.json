@@ -1,5 +1,5 @@
 {
-  "name": "decorator-utils",
+  "name": "decorator-make",
   "version": "1.0.0",
   "exports": "./dist/index.js",
   "typings": "./dist/index.d.ts",
