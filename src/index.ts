@@ -1,6 +1,11 @@
 import 'reflect-metadata';
 
-export type PropertyDecoratorCallback<T> = (type: T, target: any, propertyKey: string | symbol) => T;
+function targetName(target: Object | Function) {
+  if (typeof target === 'object') return target.constructor.name;
+  if (typeof target === 'function') return target.name;
+}
+
+export type PropertyDecoratorCallback<T> = (type: Object, target: Object, propertyKey: string | symbol) => T;
 
 /**
  * 生成一个属性装饰器
@@ -13,7 +18,7 @@ export type PropertyDecoratorCallback<T> = (type: T, target: any, propertyKey: s
  * #### 在 TypeScript 中使用方法：
  * ```ts
  * class Target {
- *   @deco prop: Type;
+ *   \@deco.decorate prop: Type;
  * }
  * ```
  * 
@@ -21,43 +26,52 @@ export type PropertyDecoratorCallback<T> = (type: T, target: any, propertyKey: s
  * ```js
  * class Target {
  * }
- * deco(Target.prototype, 'prop', Type);
+ * deco.decorate(Target.prototype, 'prop', Type);
  * ```
  * 
  * #### 取得目标对象中被装饰的属性
  * ```js
- * deco.getProperties(Target);
+ * deco.getTypes(Target.prototype);
  * ```
  */
 export function makePropertyDecorator<T = any>(cb?: PropertyDecoratorCallback<T>) {
-  const PROPERTIES = Symbol('makePropertyDecorator#properties');
+  const TYPES = Symbol('makePropertyDecorator#types');
 
   /**
    * 属性装饰器
    * 
    * @param target 目标对象
    * @param propertyKey 目标对象中的属性名
-   * @param type 属性类型，在不使用 experimentalDecorators 特性时需要指定
+   * @param type 属性类型，在不使用 Decorators 特性时需要指定
    */
-  function decorator(target: any, propertyKey: string | symbol, type?: any) {
+  function decorate(target: Object, propertyKey: string | symbol, type?: Object) {
     if (!type) {
       type = Reflect.getOwnMetadata('design:type', target, propertyKey);
     }
+    if (!type) {
+      throw new Error(`Missing propertie type: ${targetName(target)}::${String(propertyKey)}`);
+    }
     // 将父类的装饰属性描述复制到子类中，不能修改父类的装饰属性
-    const properties = Object.assign({}, decorator.getProperties(target), {
-      [propertyKey]: cb ? cb(type, target, propertyKey) : type });
-    Reflect.defineMetadata(PROPERTIES, properties, target);
+    const types = Object.assign(
+      {},
+      getTypes(target),
+      { [propertyKey]: cb ? cb(type, target, propertyKey) : type },
+    );
+    Reflect.defineMetadata(TYPES, types, target);
   }
 
   /**
-   * 取得目标对象的所有已被装饰的属性
+   * 取得目标对象的所有已被装饰的属性类型
    * @param target 目标对象
    */
-  decorator.getProperties = function (target: any): { [propertyKey: string | symbol]: T } {
-    return Reflect.getMetadata(PROPERTIES, target);
+  function getTypes(target: Object): { [propertyKey: string | symbol]: T } | undefined {
+    return Reflect.getMetadata(TYPES, target);
   }
 
-  return decorator;
+  return {
+    decorate,
+    getTypes,
+  };
 }
 
 export type MethodHandle = (...args: any[]) => any;
@@ -81,7 +95,7 @@ export type MethodDecoratorCallback<T> = (
  * #### 在 TypeScript 中使用方法：
  * ```ts
  * class Target {
- *   @deco someFunc(type?: Type, ...) {}
+ *   @deco.decorate someFunc(type?: Type, ...) {}
  * }
  * ```
  * 
@@ -90,7 +104,7 @@ export type MethodDecoratorCallback<T> = (
  * class Target {
  *   someFunc(type, ...) {}
  * }
- * deco(Target.prototype, 'someFunc', [Type, ...]);
+ * deco.decorate(Target.prototype, 'someFunc', [Type, ...]);
  * ```
  * 
  * #### 取得目标对象中被装饰的方法列表
@@ -110,12 +124,12 @@ export function makeMethodDecorator<T = MethodDescriptor>(cb?: MethodDecoratorCa
    * @param propertyKey 目标对象中方法名
    * @param descriptor_or_paramtypes 目标对象中方法描述 | 或不使用 experimentalDecorators 特性时需要被注入方法参数列表
    */
-  function decorator(target: any, propertyKey: string | symbol, descriptor_or_paramtypes?: PropertyDescriptor | any[]) {
+  function decorate(target: Object, propertyKey: string | symbol, descriptor_or_paramtypes?: PropertyDescriptor | any[]) {
     let handle: MethodHandle;
     let params: any[];
     // 兼容 js 调用
     if (!descriptor_or_paramtypes || Array.isArray(descriptor_or_paramtypes)) {
-      handle = target[propertyKey];
+      handle = (<any>target)[propertyKey];
       params = descriptor_or_paramtypes || [];
     // ts 调用
     } else {
@@ -125,7 +139,7 @@ export function makeMethodDecorator<T = MethodDescriptor>(cb?: MethodDecoratorCa
 
     const methodDescriptor = { handle, params };
     const methods = [
-      ...decorator.getMethods(target),
+      ...getMethods(target),
       cb ? cb(methodDescriptor, target, propertyKey) : methodDescriptor,
     ];
     Reflect.defineMetadata(METHODS, methods, target);
@@ -135,11 +149,14 @@ export function makeMethodDecorator<T = MethodDescriptor>(cb?: MethodDecoratorCa
    * 取得目标对象的所有已被装饰方法
    * @param target 目标对象
    */
-  decorator.getMethods = function (target: any): T[] {
+  function getMethods(target: Object): T[] {
     return Reflect.getMetadata(METHODS, target) || [];
   }
 
-  return decorator;
+  return {
+    decorate,
+    getMethods,
+  };
 }
 
 export type ClassDecoratorCallback<T> = (target: any) => T;
@@ -149,18 +166,18 @@ export type ClassDecoratorCallback<T> = (target: any) => T;
  * 
  * ### 定义一个类装饰器
  * ```js
- * const deco = makeClassDecorator(() => true);
+ * const deco = makeClassDecorator();
  * ```
  * 
  * #### 在 TypeScript 中使用方法：
  * ```ts
- * @deco class Target {}
+ * @deco.decorate class Target {}
  * ```
  * 
  * #### 在 JavaScript 中使用方法：
  * ```js
  * class Target {}
- * deco(Target);
+ * deco.decorate(Target);
  * ```
  * 
  * #### 取得目标对象中被装饰的值
@@ -177,17 +194,20 @@ export function makeClassDecorator<T = true>(cb?: ClassDecoratorCallback<T>) {
    * 类装饰器
    * @param target 目标类
    */
-  function decorator(target: any) {
-    Reflect.defineMetadata(VALUE, typeof cb === 'function' ? cb(target) : true, target);
+  function decorate(target: Object) {
+    Reflect.defineMetadata(VALUE, cb ? cb(target) : true, target);
   }
 
   /**
    * 取出目标类装饰完成的值
    * @param target 目标类
    */
-  decorator.getValue = function (target: any) {
+  function getValue(target: Object) {
     return Reflect.getMetadata(VALUE, target) as T;
   }
 
-  return decorator;
+  return {
+    decorate,
+    getValue,
+  };
 }

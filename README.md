@@ -9,7 +9,7 @@ const deco = makePropertyDecorator();
 ### TypeScript with experimentalDecorators & emitDecoratorMetadata
 ```ts
 class Target {
-  @deco prop: Type;
+  @deco.decorate prop: Type;
 }
 ```
 
@@ -17,12 +17,12 @@ class Target {
 ```js
 class Target {
 }
-deco(Target.prototype, 'prop', Type);
+deco.decorate(Target.prototype, 'prop', Type);
 ```
 
-### Get Properties
+### Get Types
 ```js
-deco.getProperties(Target);
+deco.getTypes(Target.prototype);
 ```
 
 ## Method Decorator
@@ -34,7 +34,7 @@ const deco = makeMethodDecorator();
 ### TypeScript with experimentalDecorators & emitDecoratorMetadata
 ```ts
 class Target {
-  @deco someFunc(type?: Type, ...) {}
+  @deco.decorate someFunc(type?: Type, ...) {}
 }
 ```
 
@@ -43,12 +43,12 @@ class Target {
 class Target {
   someFunc(type, ...) {}
 }
-deco(Target.prototype, 'someFunc', [Type, ...]);
+deco.decorate(Target.prototype, 'someFunc', [Type, ...]);
 ```
 
 ### Get Methods
 ```js
-deco.getMethods(Target);
+deco.getMethods(Target.prototype);
 ```
 
 ## Class Decorator
@@ -59,13 +59,13 @@ const deco = makeClassDecorator();
 
 ### TypeScript with experimentalDecorators & emitDecoratorMetadata
 ```ts
-@deco class Target {}
+@deco.decorate class Target {}
 ```
 
 ### JavaScript
 ```js
 class Target {}
-deco(Target);
+deco.decorate(Target);
 ```
 
 ### Get Value
