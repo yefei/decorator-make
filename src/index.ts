@@ -234,7 +234,7 @@ export function makeClassDecorator<T = true>() {
    * @param target 目标类
    */
   function getValue(target: Object) {
-    return Reflect.getMetadata(VALUE, target) as T;
+    return Reflect.getMetadata(VALUE, target) as T | undefined;
   }
 
   return {
