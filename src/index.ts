@@ -242,7 +242,7 @@ export function makeClassDecorator<T = true>() {
    * @param target 目标类
    * @returns 参数列表
    */
-  function getParams(target: Object) {
+  function getParams(target: Object): unknown[] {
     return Reflect.getOwnMetadata('design:paramtypes', target) || [];
   }
 

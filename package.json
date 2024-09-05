@@ -1,6 +1,6 @@
 {
   "name": "decorator-make",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "exports": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "files": [
@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "rimraf dist && tsc",
-    "prepublishOnly": "npm run build",
+    "prepack": "npm run build",
     "t1": "ts-node test/t1",
     "t2": "npm run build && node test/t2",
     "test-js": "npm run build && mocha test/*.test.js",
@@ -27,11 +27,11 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
-    "@types/node": ">=18",
     "@types/mocha": "^10.0.1",
+    "@types/node": ">=18",
     "mocha": "^10.2.0",
     "rimraf": "^4.1.2",
     "ts-mocha": "^10.0.0",
