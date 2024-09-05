@@ -237,9 +237,19 @@ export function makeClassDecorator<T = true>() {
     return Reflect.getMetadata(VALUE, target) as T | undefined;
   }
 
+  /**
+   * 取得目标类构造函数的参数列表
+   * @param target 目标类
+   * @returns 参数列表
+   */
+  function getParams(target: Object) {
+    return Reflect.getOwnMetadata('design:paramtypes', target) || [];
+  }
+
   return {
     wrap,
     decorate: wrap(),
     getValue,
+    getParams,
   };
 }

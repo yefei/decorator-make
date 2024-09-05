@@ -9,13 +9,21 @@ class A {
 }
 
 class B {
-  @prop.decorate a: A;
-  @prop.decorate b: A;
+  @prop.decorate a!: A;
+  @prop.decorate b!: A;
+
+  constructor(b1: number, b2: string) {
+  }
+
   @method.decorate bbb(a: A) {}
 }
 
 @clazz.decorate
 class C extends B {
+  constructor(p1: string, p2: number) {
+    super(p2, p1);
+  }
+
   @method.decorate ccc(b: B) {}
 }
 
@@ -25,3 +33,4 @@ console.log('B methods:', method.getMethods(B.prototype));
 console.log('C methods:', method.getMethods(C.prototype));
 console.log('C types:', prop.getTypes(C.prototype));
 console.log('C value:', clazz.getValue(C));
+console.log('C params:', clazz.getParams(C));
