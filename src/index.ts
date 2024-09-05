@@ -208,7 +208,7 @@ export type ClassDecoratorCallback<T> = (target: any) => T;
  * 
  * @param value 装饰完成后赋予的值，用于 `decorator.getValue(target)` 取出
  */
-export function makeClassDecorator<T = true>() {
+export function makeClassDecorator<T>(defaultValue?: T) {
   const VALUE = Symbol('makeClassDecorator#value');
 
   /**
@@ -223,7 +223,7 @@ export function makeClassDecorator<T = true>() {
      * @param target 目标类
      */
     function decorate(target: Object) {
-      Reflect.defineMetadata(VALUE, cb ? cb(target) : true, target);
+      Reflect.defineMetadata(VALUE, cb ? cb(target) : defaultValue, target);
     }
 
     return decorate;

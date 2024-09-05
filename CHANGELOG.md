@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.5.0] - 2024-9-5
+- add: makeClassDecorator defaultValue
+
 ## [1.4.1] - 2024-9-5
 - fix: makeClassDecorator.getParams return type
 

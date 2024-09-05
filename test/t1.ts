@@ -20,7 +20,7 @@ class B {
 
 @clazz.decorate
 class C extends B {
-  constructor(p1: string, p2: number) {
+  constructor(p1: string, p2: number, p3: undefined, p4: null, p5: any) {
     super(p2, p1);
   }
 
